@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"regexp"
 )
 
 var FileFormatMap = make(map[string][]byte)
@@ -27,7 +28,7 @@ func main() {
 		log.Fatal(err)
 	} else {
 		for k, v := range FileFormatMap {
-			if n := bytes.Index(data, v); n > -1 {
+			if n := bytes.Index(data, v); n==0 {
 				log.Fatal("FileFormat: ", fName, ": ", k)
 				return
 			}
@@ -41,13 +42,18 @@ func initFileFormatMap() {
 		log.Fatal(err)
 	} else {
 		keys := cfg.Section("").Keys()
-		for i := 0; i < len(keys); i++ {
-			if value, err := hex.DecodeString(keys[i].Value()); err != nil {
-				log.Fatal(err)
-			} else {
-				FileFormatMap[keys[i].Name()] = value
+		if reg,err:=regexp.Compile("[^0-9A-Za-z]");err!=nil{
+			log.Fatal(err)
+		}else {
+			for i := 0; i < len(keys); i++ {
+				if value, err := hex.DecodeString(reg.ReplaceAllString(keys[i].Value(), "")); err != nil {
+					log.Fatal(err)
+				} else {
+					FileFormatMap[keys[i].Name()] = value
+				}
 			}
 		}
+
 	}
 
 }
