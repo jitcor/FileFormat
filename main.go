@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"encoding/hex"
+	"errors"
 	"github.com/go-ini/ini"
 	"io/ioutil"
 	"log"
@@ -29,12 +30,32 @@ func main() {
 	} else {
 		for k, v := range FileFormatMap {
 			if n := bytes.Index(data, v); n==0 {
-				log.Fatal("FileFormat: ", fName, ": ", k)
+				log.Println("FileFormat: ", fName, ": ", k)
 				return
 			}
 		}
-		log.Fatal("FileFormat: ", fName, ": file format not recognized")
+		//复杂头部处理
+		if ff,err:=handleComplexHeader(data);err!=nil{
+			log.Fatal("FileFormat: ", fName, ": ",err)
+		}else {
+			log.Println("FileFormat: ", fName, ": ", ff)
+		}
 	}
+}
+
+func handleComplexHeader(data []byte)(string,error) {
+	if n:=bytes.Index(data,[]byte{0x52,0x49,0x46,0x46});n==0{
+		if n:=bytes.Index(data,[]byte{0x41,0x56,0x49,0x20});n==8{
+			return "AVI",nil
+		}else if n:=bytes.Index(data,[]byte{0x57,0x41,0x56,0x45});n==8{
+			return "WAV",nil
+		}
+	}else if n:=bytes.Index(data,[]byte{0xff,0xff,0xff,0x07});n==4{
+		return "MMKV",nil
+	}else {
+		return handleProtobuf(data)
+	}
+	return "",errors.New("file format not recognized")
 }
 
 func initFileFormatMap() {
