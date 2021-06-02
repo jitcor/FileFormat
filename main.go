@@ -12,7 +12,11 @@ import (
 var FileFormatMap =make(map[string][]byte)
 func main() {
 	initFileFormatMap()
-	fName:=os.Args[1]
+	if len(os.Args)<=1{
+		log.Fatal("Please input file path")
+		return
+	}
+		fName:=os.Args[1]
 	if data,err:=ioutil.ReadFile(fName);err!=nil{
 		log.Fatal(err)
 	}else {
