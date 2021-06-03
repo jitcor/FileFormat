@@ -19,8 +19,8 @@ func decodeProto(buffer []byte) (parts []*_Part, leftBytes []byte, err error) {
 	} else {
 		if err := func() (err error) {
 			defer func() {
-				if e:=recover();e!=nil{
-					err=e.(error)
+				if e := recover(); e != nil {
+					err = e.(error)
 				}
 			}()
 			for reader.leftBytes() > 0 {
@@ -69,15 +69,15 @@ const PROTOBUF_STRING = 2
 const PROTOBUF_FIXED32 = 5
 
 func handleProtobuf(data []byte) (string, error) {
-	if _,leftBytes,err:=decodeProto(data);err!=nil{
-		return "",err
-	}else {
+	if _, leftBytes, err := decodeProto(data); err != nil {
+		return "", err
+	} else {
 		//log.Println("parts:",parts)
 		//log.Println("leftBytes:",leftBytes)
-		if len(leftBytes)>0{
-			return "",errors.New("leftBytes >0")
-		}else {
-			return "PROTOBUF",nil
+		if len(leftBytes) > 0 {
+			return "", errors.New("leftBytes >0")
+		} else {
+			return "PROTOBUF", nil
 		}
 	}
 }
