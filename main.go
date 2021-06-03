@@ -1,13 +1,13 @@
 package main
 
 import (
+	"bufio"
 	"bytes"
 	"encoding/hex"
 	"errors"
 	"flag"
 	"fmt"
 	"github.com/go-ini/ini"
-	"io/ioutil"
 	"log"
 	"os"
 	"regexp"
@@ -25,7 +25,7 @@ func main() {
 		return
 	}
 	if fileName!=""{
-		if data, err := ioutil.ReadFile(fileName); err != nil {
+		if data, err := ReadFile(fileName); err != nil {
 			log.Fatal(err)
 		} else {
 			for k, v := range FileFormatMap {
@@ -99,6 +99,40 @@ func initFileFormatMap() {
 
 	}
 
+}
+func ReadFile(filename string) ([]byte, error) {
+	f, err := os.Open(filename)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	if fi, err := f.Stat(); err != nil {
+		return nil,err
+	}else {
+		var max=10*1024*1024 //最多读10M
+		buf:=make([]byte,min(max, int(fi.Size())))
+		reader := bufio.NewReader(f)
+		r, err := reader.Read(buf)
+		if err!=nil{
+			return nil,err
+		}
+		for i := r; i!= len(buf);i++  {
+			r,err=reader.Read(buf[i:])
+			if err!=nil{
+				return nil,err
+			}
+			i+=r
+		}
+		return buf,nil
+	}
+
+}
+
+func min(a int, b int) int {
+	if a<b{
+		return a
+	}
+	return a
 }
 func initArgs() (printVersion bool,fileName,hexData string) {
 	v := flag.Bool("version", false, "Print program build version")
