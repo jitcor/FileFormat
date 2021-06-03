@@ -15,7 +15,7 @@ import (
 
 var FileFormatMap = make(map[string][]byte)
 
-const VERSION = "1.0.0"
+const VERSION = "1.0.1"
 
 func main() {
 	printVersion, fileName, hexData := initArgs()
